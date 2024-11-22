@@ -33,4 +33,17 @@ public class RsaService {
             throw new RuntimeException("Erro ao criptografar dados. Detalhes: " + e.getMessage());
         }
     }
+
+    public String descriptografar(String encryptedCata) {
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+            byte[] dadosDecodificado = Base64.getDecoder().decode(encryptedCata);
+            byte[] dadosDescriptografados = cipher.doFinal(dadosDecodificado);
+            return new String(dadosDescriptografados);
+        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException |
+                 BadPaddingException e) {
+            throw new RuntimeException("Erro ao descriptografar dados. Detalhes: " + e.getMessage());
+        }
+    }
 }

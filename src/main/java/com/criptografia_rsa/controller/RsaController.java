@@ -1,6 +1,7 @@
 package com.criptografia_rsa.controller;
 
 import com.criptografia_rsa.entity.EncryptRequest;
+import com.criptografia_rsa.entity.EncryptResponse;
 import com.criptografia_rsa.service.RsaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,5 +22,11 @@ public class RsaController {
     public ResponseEntity<EncryptRequest> criptografar(@RequestBody EncryptRequest request) {
             String dadosCriptografados = rsaService.criptografar(request.getData());
             return ResponseEntity.ok(new EncryptRequest(dadosCriptografados));
+    }
+
+    @PostMapping("/descriptografar")
+    public ResponseEntity<EncryptResponse> descriptografar(@RequestBody EncryptResponse request) {
+        String dadosDescriptografados = rsaService.descriptografar(request.getEncryptedData());
+        return ResponseEntity.ok(new EncryptResponse(dadosDescriptografados));
     }
 }
