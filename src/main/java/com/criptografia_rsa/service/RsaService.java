@@ -6,13 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
 
@@ -20,6 +15,7 @@ import java.util.Date;
 public class RsaService {
 
     public final KeyPair keyPair;
+
 
     public RsaService(KeyPair keyPair) {
         this.keyPair = keyPair;
@@ -54,11 +50,14 @@ public class RsaService {
         return new String(dadosDescriptografados);
     }
 
-    public String gerarToken(String subject) throws Exception {
+    public String gerarToken(String user, String senha) throws Exception {
+        String payload = String.format("{\"user\":\"%s\", \"senha\":\"%s\"}", user, senha);
+
         return Jwts.builder()
-                .setSubject(subject)
+                .setSubject("autenticacao")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .claim("data", payload)
                 .signWith(keyPair.getPrivate(), SignatureAlgorithm.RS256)
                 .compact();
     }

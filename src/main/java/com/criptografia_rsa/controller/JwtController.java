@@ -1,5 +1,6 @@
 package com.criptografia_rsa.controller;
 
+import com.criptografia_rsa.entity.JwtRequest;
 import com.criptografia_rsa.entity.JwtResponse;
 import com.criptografia_rsa.service.RsaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,9 @@ public class JwtController {
     }
 
     @PostMapping("/gerar")
-    public ResponseEntity<JwtResponse> gerarToken(@RequestParam String subject) {
+    public ResponseEntity<JwtResponse> gerarToken(@RequestBody JwtRequest request) {
         try {
-            String token = rsaService.gerarToken(subject);
+            String token = rsaService.gerarToken(request.getUser(), request.getSenha());
             return ResponseEntity.ok(new JwtResponse(token));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new JwtResponse("Erro ao gerar token"));
@@ -28,7 +29,7 @@ public class JwtController {
     }
 
     @GetMapping("/validar")
-    public ResponseEntity<String> validarToken(@RequestParam String token) {
+    public ResponseEntity<String> validarToken(@RequestBody String token) {
         boolean valido = rsaService.validarToken(token);
         if (valido) {
             return ResponseEntity.ok("Token válido");
