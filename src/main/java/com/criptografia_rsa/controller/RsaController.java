@@ -20,13 +20,21 @@ public class RsaController {
 
     @PostMapping("/criptografar")
     public ResponseEntity<EncryptRequest> criptografar(@RequestBody EncryptRequest request) {
-            String dadosCriptografados = rsaService.criptografar(request.getData());
-            return ResponseEntity.ok(new EncryptRequest(dadosCriptografados));
+        try {
+            EncryptRequest dadosCriptografados = rsaService.criptografar(request);
+            return ResponseEntity.ok(dadosCriptografados);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
     @PostMapping("/descriptografar")
-    public ResponseEntity<EncryptResponse> descriptografar(@RequestBody EncryptResponse request) {
-        String dadosDescriptografados = rsaService.descriptografar(request.getEncryptedData());
-        return ResponseEntity.ok(new EncryptResponse(dadosDescriptografados));
+    public ResponseEntity<EncryptRequest> descriptografar(@RequestBody EncryptRequest request) {
+        try {
+            EncryptRequest dadosDescriptografados = rsaService.descriptografar(request);
+            return ResponseEntity.ok(dadosDescriptografados);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 }

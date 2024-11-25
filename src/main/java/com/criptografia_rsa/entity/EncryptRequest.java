@@ -10,5 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EncryptRequest {
-    private String data;
+    private String user;
+    private String password;
 }

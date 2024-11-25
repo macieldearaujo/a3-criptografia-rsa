@@ -21,29 +21,32 @@ public class RsaService {
         this.keyPair = keyPair;
     }
 
-    public String criptografar(String dados) {
-        try {
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-            byte[] dadosCriptografados = cipher.doFinal(dados.getBytes());
+    public EncryptRequest criptografar(EncryptRequest request) throws Exception {
+        String userCriptografado = criptografarCampo(request.getUser());
+        String passwordCriptografado = criptografarCampo(request.getPassword());
 
-            return Base64.getEncoder().encodeToString(dadosCriptografados);
-        } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException |
-                 InvalidKeyException e) {
-            throw new RuntimeException("Erro ao criptografar dados. Detalhes: " + e.getMessage());
-        }
+        return new EncryptRequest(userCriptografado, passwordCriptografado);
     }
 
-    public String descriptografar(String encryptedCata) {
-        try {
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-            byte[] dadosDecodificado = Base64.getDecoder().decode(encryptedCata);
-            byte[] dadosDescriptografados = cipher.doFinal(dadosDecodificado);
-            return new String(dadosDescriptografados);
-        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException |
-                 BadPaddingException e) {
-            throw new RuntimeException("Erro ao descriptografar dados. Detalhes: " + e.getMessage());
-        }
+    private String criptografarCampo(String campo) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
+        byte[] dadosCriptografados = cipher.doFinal(campo.getBytes());
+        return Base64.getEncoder().encodeToString(dadosCriptografados);
+    }
+
+    public EncryptRequest descriptografar(EncryptRequest request) throws Exception {
+        String userDescriptografado = descriptografarCampo(request.getUser());
+        String passwordDescriptografado = descriptografarCampo(request.getPassword());
+
+        return new EncryptRequest(userDescriptografado, passwordDescriptografado);
+    }
+
+    private String descriptografarCampo(String campoCriptografado) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+        byte[] dadosDecodificados = Base64.getDecoder().decode(campoCriptografado);
+        byte[] dadosDescriptografados = cipher.doFinal(dadosDecodificados);
+        return new String(dadosDescriptografados);
     }
 }
