@@ -1,6 +1,9 @@
 package com.criptografia_rsa.service;
 
 import com.criptografia_rsa.entity.EncryptRequest;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
@@ -11,6 +14,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.Date;
 
 @Service
 public class RsaService {
@@ -48,5 +52,26 @@ public class RsaService {
         byte[] dadosDecodificados = Base64.getDecoder().decode(campoCriptografado);
         byte[] dadosDescriptografados = cipher.doFinal(dadosDecodificados);
         return new String(dadosDescriptografados);
+    }
+
+    public String gerarToken(String subject) throws Exception {
+        return Jwts.builder()
+                .setSubject(subject)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .signWith(keyPair.getPrivate(), SignatureAlgorithm.RS256)
+                .compact();
+    }
+
+    public boolean validarToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(keyPair.getPublic())
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 }
