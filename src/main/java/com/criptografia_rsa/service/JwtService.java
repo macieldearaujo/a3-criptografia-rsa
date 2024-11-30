@@ -43,6 +43,8 @@ public class JwtService {
     }
 
     public Map<String, Object> validarTokenDetalhado(String token) {
+        long initialTime = new Date().getTime();
+
         Map<String, Object> response = new HashMap<>();
         try {
             Claims claims = Jwts.parserBuilder()
@@ -55,6 +57,9 @@ public class JwtService {
             response.put("subject", claims.getSubject());
             response.put("issuedAt", claims.getIssuedAt());
             response.put("expiration", claims.getExpiration());
+
+            long executionTime = new Date().getTime() - initialTime;
+            logger.info("Token validado com sucesso! Tempo de execução total: {}ms.", executionTime);
         } catch (JwtException e) {
             response.put("valid", false);
             response.put("error", e.getMessage());

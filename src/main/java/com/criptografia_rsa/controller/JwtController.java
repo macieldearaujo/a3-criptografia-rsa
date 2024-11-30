@@ -4,7 +4,6 @@ import com.criptografia_rsa.entity.JwtRequest;
 import com.criptografia_rsa.entity.JwtResponse;
 import com.criptografia_rsa.entity.JwtValidate;
 import com.criptografia_rsa.service.JwtService;
-import com.criptografia_rsa.service.RsaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
