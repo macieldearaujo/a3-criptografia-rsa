@@ -1,9 +1,8 @@
 package com.criptografia_rsa.service;
 
 import com.criptografia_rsa.entity.EncryptRequest;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
@@ -14,16 +13,22 @@ import java.util.Date;
 @Service
 public class RsaService {
 
-    public final KeyPair keyPair;
+    public static final Logger logger = LoggerFactory.getLogger(RsaService.class);
 
+    public final KeyPair keyPair;
 
     public RsaService(KeyPair keyPair) {
         this.keyPair = keyPair;
     }
 
     public EncryptRequest criptografar(EncryptRequest request) throws Exception {
+        long initialTime = new Date().getTime();
+
         String userCriptografado = criptografarCampo(request.getUser());
         String passwordCriptografado = criptografarCampo(request.getPassword());
+
+        long executionTime = new Date().getTime() - initialTime;
+        logger.info("Usuário criptografado com sucesso! Tempo de execução total: {}ms.", executionTime);
 
         return new EncryptRequest(userCriptografado, passwordCriptografado);
     }
@@ -36,8 +41,13 @@ public class RsaService {
     }
 
     public EncryptRequest descriptografar(EncryptRequest request) throws Exception {
+        long initialTime = new Date().getTime();
+
         String userDescriptografado = descriptografarCampo(request.getUser());
         String passwordDescriptografado = descriptografarCampo(request.getPassword());
+
+        long executionTime = new Date().getTime() - initialTime;
+        logger.info("Usuário descriptografado com sucesso! Tempo de execução total: {}ms.", executionTime);
 
         return new EncryptRequest(userDescriptografado, passwordDescriptografado);
     }
@@ -48,29 +58,5 @@ public class RsaService {
         byte[] dadosDecodificados = Base64.getDecoder().decode(campoCriptografado);
         byte[] dadosDescriptografados = cipher.doFinal(dadosDecodificados);
         return new String(dadosDescriptografados);
-    }
-
-    public String gerarToken(String user, String senha) throws Exception {
-        String payload = String.format("{\"user\":\"%s\", \"senha\":\"%s\"}", user, senha);
-
-        return Jwts.builder()
-                .setSubject("autenticacao")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
-                .claim("data", payload)
-                .signWith(keyPair.getPrivate(), SignatureAlgorithm.RS256)
-                .compact();
-    }
-
-    public boolean validarToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(keyPair.getPublic())
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (JwtException e) {
-            return false;
-        }
     }
 }
